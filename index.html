@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GearMatch | Find Your Baseball Gear</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6f3;
+      color: #17251d;
+    }
+    header {
+      background: #123d2a;
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 8px; font-size: 32px; }
+    header p { margin: 0; color: #d5e9d9; }
+    main {
+      max-width: 650px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+    .panel {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px #102c1710;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 16px 0 7px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5ce;
+      border-radius: 8px;
+      font-size: 16px;
+      background: white;
+    }
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: 0;
+      border-radius: 9px;
+      background: #17653d;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #104b2c; }
+    #results { margin-top: 22px; }
+    .item {
+      border: 1px solid #dce5dd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 12px;
+    }
+    .item h3 { margin: 0 0 8px; }
+    .note { color: #536257; font-size: 14px; }
+    footer { text-align: center; padding: 20px; color: #647168; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚾ GearMatch</h1>
+    <p>Your game. Your gear. Your match.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Find your baseball gear</h2>
+      <p>Tell us about yourself to get started.</p>
+
+      <form id="gearForm">
+        <label for="age">Player's age</label>
+        <input id="age" type="number" min="4" max="100"
+          placeholder="e.g. 14" required>
+
+        <label for="position">Primary position</label>
+        <select id="position" required>
+          <option value="">Choose a position</option>
+          <option>Pitcher</option>
+          <option>Catcher</option>
+          <option>Infielder</option>
+          <option>Outfielder</option>
+          <option>Utility</option>
+        </select>
+
+        <label for="level">Experience level</label>
+        <select id="level" required>
+          <option value="">Choose your level</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+
+        <label for="budget">Budget for one item</label>
+        <select id="budget" required>
+          <option value="">Choose your budget</option>
+          <option value="50">Under $50</option>
+          <option value="100">$50–$100</option>
+          <option value="200">$100–$200</option>
+          <option value="500">$200+</option>
+        </select>
+
+        <label for="itemType">What do you need?</label>
+        <select id="itemType" required>
+          <option value="">Choose equipment</option>
+          <option value="bat">Bat</option>
+          <option value="glove">Glove</option>
+          <option value="cleats">Cleats</option>
+          <option value="all">Everything</option>
+        </select>
+
+        <button type="submit">Find My Gear</button>
+      </form>
+
+      <div id="results" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>GearMatch • Built for baseball players</footer>
+
+  <script>
+    const form = document.getElementById("gearForm");
+    const results = document.getElementById("results");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const age = Number(document.getElementById("age").value);
+      const position = document.getElementById("position").value;
+      const level = document.getElementById("level").value;
+      const budget = Number(document.getElementById("budget").value);
+      const type = document.getElementById("itemType").value;
+
+      if (age < 4 || age > 100) {
+        results.textContent = "Please enter a valid age.";
+        return;
+      }
+
+      const gear = {
+        bat: {
+          name: "Baseball bat",
+          advice: age < 13
+            ? "Compare youth bat sizes and league-approved models."
+            : "Compare bat length, weight, swing feel, and league rules."
+        },
+        glove: {
+          name: "Baseball glove",
+          advice: position === "Catcher"
+            ? "Look for a catcher's mitt made for your level."
+            : position === "Infielder"
+            ? "Compare smaller, easy-to-control infield gloves."
+            : position === "Outfielder"
+            ? "Compare outfield gloves with a deeper pocket."
+            : "Compare comfortable gloves designed for your position."
+        },
+        cleats: {
+          name: "Baseball cleats",
+          advice: "Check field surface, fit, traction, and league rules."
+        }
+      };
+
+      const chosen = type === "all"
+        ? Object.keys(gear)
+        : [type];
+
+      const titles = {
+        Beginner: "Good starting point",
+        Intermediate: "Balanced performance option",
+        Advanced: "Performance-focused option"
+      };
+
+      results.innerHTML = `
+        <h2>Your GearMatch results</h2>
+        <p>Profile: Age ${age} • ${position} • ${level}</p>
+        ${chosen.map(key => `
+          <article class="item">
+            <h3>${gear[key].name}</h3>
+            <p>${gear[key].advice}</p>
+            <p><strong>${titles[level]}</strong></p>
+            <p class="note">Budget: ${budget < 500
+              ? "Up to $" + budget
+              : "$200+"}. Compare current prices and product specs.</p>
+          </article>
+        `).join("")}
+        <p class="note">
+          These are starting suggestions, not verified product matches.
+          Check sizing, safety standards, and league rules before buying.
+        </p>
+      `;
+    });
+  </script>
+</body>
+</html>
